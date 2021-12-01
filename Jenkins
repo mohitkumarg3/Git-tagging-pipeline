@@ -1,0 +1,31 @@
+pipeline {
+    agent any
+    stages {
+        stage('gitSemVer') {
+            steps {
+                //sh 'mkdir mk-git'
+                //sh 'cd mk-git'
+                //sh 'git init'
+                sh 'wget -q -O gitversion https://github.com/screwdriver-cd/gitversion/releases/download/v1.1.1/gitversion_linux_amd64'
+                sh 'chmod u+x ./gitversion'
+            }
+        }
+        stage('gitFetchTags') {
+            steps {
+                sh 'git fetch --tags'
+            }
+        }
+        stage('gittagging') {
+            steps {
+                sh './gitversion  bump auto' 
+                //&& ./gitversion show > pipeline_app_version.txt'
+            }
+        }
+        stage('gitTagsPush') {
+            steps {
+                git branch: 'master', credentialsId: '6911965a-f146-4dc4-9cc1-828944808653', url: 'https://github.com/mohitkumarg3/nodeapi.git'
+                sh 'git push https://${gitToken}@github.com/mohitkumarg3/nodeapi.git --tags'
+            }
+        }
+    }
+}
